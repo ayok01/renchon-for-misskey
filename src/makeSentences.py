@@ -4,21 +4,24 @@ import MeCab
 from filters import filter_words, filter_links
 import numpy as np
 import os
-from twitterApi import api
+from misskey import Misskey
 
+misskey = Misskey("インスタンス", i="トークン")
 # MeCab
 mecab = MeCab.Tagger(f"-d /usr/lib/mecab/dic/mecab-ipadic-neologd -Ochasen")
 
-with open('assets/templates.json', 'r') as json_file:
+with open('../assets/templates.json', 'r') as json_file:
     templates = json.load(json_file)
 
 def make_sentences():
-    tweets = [s.text for s in api.home_timeline(count = 100) if not s.user.screen_name == os.environ["SCREEN_NAME"] and not s.retweeted and 'RT @' not in s.text]
+    note = misskey.notes_timeline(limit=10)
 
-    # フィルター
-    data = filter_links(tweets)
-    for t in data:
-        t.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&").replace("?", "？").replace("!", "！").replace("，", "、").replace("．", "。") + ","
+    for number in note:
+        print(number["text"])
+        # フィルター
+        data = filter_links(number)
+        for t in data:
+            t.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&").replace("?", "？").replace("!", "！").replace("，", "、").replace("．", "。") + ","
 
     # ツイートリストを出力
     logging.debug(data)
