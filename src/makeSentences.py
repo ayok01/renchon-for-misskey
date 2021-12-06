@@ -5,29 +5,43 @@ from filters import filter_words, filter_links
 import numpy as np
 import os
 from misskey import Misskey
+import requests
 
+#TL受信のJson作成
 with open('../assets/config.json', 'r') as json_file:
     config = json.load(json_file)
 
-print(config)
+url = "https://" + config['token']['server'] + "/api/notes/timeline"
 
-misskey = Misskey(config['token']['server'], i= config['token']['i'])
+limit = 20
 
-# MeCab
-mecab = MeCab.Tagger(f"-Ochasen")
+json_data = {
+    "i" : config['token']['i'],
+    "limit":limit,
+}
+
+
+
+# MeCab 辞書の場所の把握し　パスを通してください
+mecab = MeCab.Tagger(f"-d /var/lib/mecab/dic/mecab-ipadic-neologd -Ochasen")
 
 with open('../assets/templates.json', 'r') as json_file:
     templates = json.load(json_file)
 
 text_list = []
 def make_sentences():
-    note = misskey.notes_timeline(limit=10)
+    response = requests.post(
+        url,
+        json.dumps(json_data),
+        headers={'Content-Type': 'application/json'})
+    hash = response.json()
+    for num in range(limit):
+        print(hash[num]["text"])
+        if hash[num]["text"] != None:
+            text_list.append(hash[num]["text"])
 
-    for number in note:
-        note_data = number["text"]
-        print(number["text"])
-        text_list.append(note_data)
-        
+    print(text_list)
+
     # フィルター
     data = filter_links(text_list)
     for t in data:

@@ -16,7 +16,7 @@ def note():
     if np.random.randint(1,91) == 1:
         nyanpass_status = misskey.notes_create("にゃんぱすー")
 #        send(nyanpass_status)
-    sentence_1, sentence_2 = make_sentences()
+    sentence_1,sentence_2 = make_sentences()
     tweet_result_1 = misskey.notes_create(sentence_1)
     tweet_result_2 = misskey.notes_create(sentence_2)
 #    send(tweet_result_1)
